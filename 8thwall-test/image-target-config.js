@@ -241,15 +241,15 @@
         min-height: 120px;
         border: 0;
         border-radius: 22px;
-        background: linear-gradient(145deg, #fff7dc 0%, #ffe7aa 58%, #f7c56d 100%);
+        background: transparent;
         color: #8d1f20;
         font: 800 20px/1.1 "Segoe UI Variable Display", "Aptos Display", "Segoe UI", Arial, Helvetica, sans-serif;
-        box-shadow: 0 22px 55px rgba(48, 15, 10, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.75);
+        box-shadow: none;
         pointer-events: auto;
-        overflow: hidden;
+        overflow: visible;
         display: grid;
         place-items: center;
-        padding: 14px 18px;
+        padding: 0;
       }
 
       #postcard-button.hidden { display: none; }
@@ -262,23 +262,14 @@
         animation: postcard-open 0.58s cubic-bezier(0.2, 0.85, 0.2, 1) forwards;
       }
 
-      #postcard-button::before, #postcard-button::after {
-        content: '';
-        position: absolute;
-        inset: auto 0 0;
-        height: 70%;
-        border-top: 2px solid rgba(150, 70, 45, 0.18);
-        transform-origin: center bottom;
-        pointer-events: none;
-      }
-
-      #postcard-button::before { transform: skewY(24deg); }
-      #postcard-button::after { transform: skewY(-24deg); }
-
       .postcard-lottie {
         position: absolute;
-        inset: -22% -8%;
+        left: 50%;
+        top: 50%;
+        width: 112%;
+        height: 178%;
         z-index: 0;
+        transform: translate(-50%, -50%);
         filter: drop-shadow(0 12px 18px rgba(94, 31, 17, 0.22));
         pointer-events: none;
       }
@@ -289,65 +280,13 @@
         height: 100%;
       }
 
-      .postcard-envelope {
-        position: relative;
-        flex: 0 0 86px;
-        width: 86px;
-        height: 58px;
-        border-radius: 8px;
-        background: linear-gradient(180deg, #fff8df, #ffd78e);
-        box-shadow: inset 0 0 0 2px rgba(142, 63, 34, 0.12), 0 10px 22px rgba(84, 36, 20, 0.2);
-      }
-
-      .postcard-envelope::before,
-      .postcard-envelope::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        width: 50%;
-        height: 72%;
-        background: rgba(255, 235, 181, 0.78);
-        border-top: 2px solid rgba(151, 74, 49, 0.18);
-      }
-
-      .postcard-envelope::before {
-        left: 0;
-        clip-path: polygon(0 100%, 100% 0, 100% 100%);
-      }
-
-      .postcard-envelope::after {
-        right: 0;
-        clip-path: polygon(0 0, 100% 100%, 0 100%);
-      }
-
-      .postcard-flap {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 54%;
-        transform-origin: top center;
-        background: linear-gradient(180deg, #ffe8aa, #fff3ce);
-        clip-path: polygon(0 0, 100% 0, 50% 100%);
-      }
-
-      .postcard-seal {
-        position: absolute;
-        left: 50%;
-        top: 33px;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        transform: translateX(-50%);
-        background: linear-gradient(145deg, #c3262d, #8f151a);
-        box-shadow: 0 2px 7px rgba(94, 9, 12, 0.28);
-      }
-
       .postcard-copy {
         position: relative;
         z-index: 1;
         text-align: center;
         min-width: 0;
+        width: min(72vw, 340px);
+        padding: 10px 18px;
         opacity: 0;
         transform: translateY(8px);
         transition: opacity 0.28s ease, transform 0.28s ease;
