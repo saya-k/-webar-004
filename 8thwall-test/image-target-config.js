@@ -293,7 +293,7 @@
       .postcard-copy {
         position: absolute;
         left: 50%;
-        top: calc(50% + 205px);
+        top: calc(50% + 107px);
         z-index: 1;
         text-align: center;
         min-width: 0;
