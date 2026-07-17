@@ -383,6 +383,11 @@
         font-weight: 700;
         line-height: 1.02;
         letter-spacing: 0;
+        -webkit-text-stroke: 1px rgba(255, 255, 255, 0.82);
+        paint-order: stroke fill;
+        text-shadow:
+          0 1px 0 rgba(255, 255, 255, 0.6),
+          0 0 8px rgba(255, 255, 255, 0.35);
       }
 
       @keyframes postcard-fly-in {
@@ -984,16 +989,27 @@
     santaCanvas.classList.remove('visible');
     if (santa) santa.visible = false;
 
+    let introDone = false;
+    let speechDone = false;
+    const tryFinishSpeechStep = () => {
+      if (!introDone || !speechDone || !state.experienceStarted || state.flowToken !== flowToken) return;
+      finishSpeechStep();
+    };
+
+    speakIntro().then(() => {
+      speechDone = true;
+      tryFinishSpeechStep();
+    });
+
     playIntroLottieOnce().then(() => {
       if (!state.experienceStarted || state.flowToken !== flowToken) return;
+      introDone = true;
       state.santaMode = 'dance';
       playSantaAction('Santa_DanceIdle', 0.2);
       santaCanvas.classList.add('visible');
       if (santa) santa.visible = true;
-      startSpeechWatchdog(7600);
-      speakIntro().then(() => {
-        if (state.flowToken === flowToken) finishSpeechStep();
-      });
+      if (!speechDone) startSpeechWatchdog(7600);
+      tryFinishSpeechStep();
     });
   }
 
