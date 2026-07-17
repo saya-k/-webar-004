@@ -293,7 +293,7 @@
       .postcard-hitbox {
         position: absolute;
         left: 50%;
-        top: 50%;
+        top: 80%;
         width: 336%;
         height: 534%;
         z-index: 3;
@@ -339,7 +339,7 @@
       .postcard-title {
         position: absolute;
         left: 50%;
-        top: 65%;
+        top: 66%;
         transform: translate(-50%, -50%);
         display: flex;
         flex-direction: column;
