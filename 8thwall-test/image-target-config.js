@@ -290,6 +290,18 @@
         height: 100%;
       }
 
+      .postcard-hitbox {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 336%;
+        height: 534%;
+        z-index: 3;
+        transform: translate(-50%, -50%);
+        pointer-events: auto;
+        background: transparent;
+      }
+
       .postcard-copy {
         position: absolute;
         left: 50%;
@@ -327,7 +339,7 @@
       .postcard-title {
         position: absolute;
         left: 50%;
-        top: 64%;
+        top: 65%;
         transform: translate(-50%, -50%);
         display: flex;
         flex-direction: column;
@@ -511,6 +523,7 @@
         </div>
         <button id="postcard-button" class="hidden" type="button" aria-label="Open Santa's postcard">
           <span id="postcard-lottie" class="postcard-lottie" aria-hidden="true"></span>
+          <span class="postcard-hitbox" aria-hidden="true"></span>
           <span class="postcard-copy">
             <span class="postcard-title">
               <span>Open your</span>
