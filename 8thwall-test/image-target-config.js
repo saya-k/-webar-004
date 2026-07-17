@@ -327,7 +327,7 @@
       .postcard-title {
         position: absolute;
         left: 50%;
-        top: 66%;
+        top: 40%;
         transform: translate(-50%, -50%);
         display: flex;
         flex-direction: column;
