@@ -234,7 +234,7 @@
       #postcard-button {
         position: fixed;
         left: 50%;
-        bottom: calc(82px + env(safe-area-inset-bottom, 0px));
+        bottom: calc(98px + env(safe-area-inset-bottom, 0px));
         z-index: 2147483644;
         transform: translate3d(-50%, 0, 0);
         width: min(84vw, 430px);
@@ -321,16 +321,6 @@
         letter-spacing: 0;
       }
 
-      .postcard-shine {
-        position: absolute;
-        inset: -45% auto -45% -25%;
-        width: 36%;
-        transform: rotate(18deg);
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
-        animation: postcard-shine 2.8s ease-in-out 1.1s infinite;
-        pointer-events: none;
-      }
-
       @keyframes postcard-fly-in {
         from { transform: translate3d(34vw, -34vh, 0) scale(0.62) rotate(12deg); opacity: 0; }
         62% { opacity: 1; }
@@ -340,11 +330,6 @@
       @keyframes postcard-float {
         0%, 100% { transform: translate3d(-50%, 0, 0); }
         50% { transform: translate3d(-50%, -8px, 0); }
-      }
-
-      @keyframes postcard-shine {
-        0%, 38% { left: -28%; }
-        72%, 100% { left: 112%; }
       }
 
       @keyframes postcard-open {
@@ -510,7 +495,6 @@
               <span>Christmas postcard</span>
             </span>
           </span>
-          <span class="postcard-shine" aria-hidden="true"></span>
         </button>
         <div id="christmas-video-overlay" class="hidden">
           <video id="christmas-video" src="./assets/Christmas.mp4" playsinline webkit-playsinline preload="auto"></video>
