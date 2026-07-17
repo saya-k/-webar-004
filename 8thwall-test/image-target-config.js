@@ -14,6 +14,10 @@
   let nameBadge;
   let santaCanvas;
   let postcardButton;
+  let postcardLottieContainer;
+  let postcardLottieAnimation;
+  let lottieRuntimePromise;
+  let postcardLottiePlayed = false;
   let videoOverlay;
   let christmasVideo;
   let completeOverlay;
@@ -234,7 +238,7 @@
         z-index: 2147483644;
         transform: translateX(-50%);
         width: min(84vw, 430px);
-        min-height: 124px;
+        min-height: 120px;
         border: 0;
         border-radius: 22px;
         background: linear-gradient(145deg, #fff7dc 0%, #ffe7aa 58%, #f7c56d 100%);
@@ -245,8 +249,8 @@
         overflow: hidden;
         display: flex;
         align-items: center;
-        gap: 16px;
-        padding: 16px 18px;
+        gap: 12px;
+        padding: 14px 18px 14px 12px;
       }
 
       #postcard-button.hidden { display: none; }
@@ -271,6 +275,22 @@
 
       #postcard-button::before { transform: skewY(24deg); }
       #postcard-button::after { transform: skewY(-24deg); }
+
+      .postcard-lottie {
+        position: relative;
+        z-index: 1;
+        flex: 0 0 104px;
+        width: 104px;
+        height: 104px;
+        filter: drop-shadow(0 12px 18px rgba(94, 31, 17, 0.22));
+        pointer-events: none;
+      }
+
+      .postcard-lottie svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
 
       .postcard-envelope {
         position: relative;
@@ -538,10 +558,7 @@
           </div>
         </div>
         <button id="postcard-button" class="hidden" type="button" aria-label="Open Santa's postcard">
-          <span class="postcard-envelope" aria-hidden="true">
-            <span class="postcard-flap"></span>
-            <span class="postcard-seal"></span>
-          </span>
+          <span id="postcard-lottie" class="postcard-lottie" aria-hidden="true"></span>
           <span class="postcard-copy">
             <span class="postcard-title">
               <span>Open your</span>
@@ -571,6 +588,7 @@
       nameError = document.getElementById('name-error');
       nameBadge = document.getElementById('name-badge');
       postcardButton = document.getElementById('postcard-button');
+      postcardLottieContainer = document.getElementById('postcard-lottie');
       videoOverlay = document.getElementById('christmas-video-overlay');
       christmasVideo = document.getElementById('christmas-video');
       completeOverlay = document.getElementById('complete-overlay');
@@ -960,6 +978,7 @@
     hideScanStatus();
     postcardButton.classList.add('hidden');
     postcardButton.classList.remove('opening');
+    resetPostcardLottie();
     videoOverlay.classList.add('hidden');
     completeOverlay.classList.add('hidden');
     santaCanvas.classList.add('visible');
@@ -995,6 +1014,73 @@
     state.santaMode = 'wave';
     playSantaAction('Santa_WaveHello', 0.45);
     postcardButton.classList.remove('hidden');
+    playPostcardLottieReverseOnce();
+  }
+
+  function loadLottieRuntime() {
+    if (window.lottie) return Promise.resolve(window.lottie);
+    if (lottieRuntimePromise) return lottieRuntimePromise;
+    lottieRuntimePromise = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = './assets/lottie.min.js';
+      script.async = true;
+      script.onload = () => {
+        if (window.lottie) resolve(window.lottie);
+        else reject(new Error('lottie runtime missing'));
+      };
+      script.onerror = () => reject(new Error('lottie runtime failed'));
+      document.head.appendChild(script);
+    });
+    return lottieRuntimePromise;
+  }
+
+  function ensurePostcardLottie() {
+    if (postcardLottieAnimation) return Promise.resolve(postcardLottieAnimation);
+    if (!postcardLottieContainer) return Promise.reject(new Error('postcard lottie container missing'));
+    return loadLottieRuntime().then((lottie) => new Promise((resolve, reject) => {
+      postcardLottieAnimation = lottie.loadAnimation({
+        container: postcardLottieContainer,
+        renderer: 'svg',
+        loop: false,
+        autoplay: false,
+        path: './assets/postcard-envelope.json',
+        rendererSettings: {
+          preserveAspectRatio: 'xMidYMid meet',
+        },
+      });
+      const done = () => resolve(postcardLottieAnimation);
+      const failed = () => reject(new Error('postcard lottie data failed'));
+      postcardLottieAnimation.addEventListener('DOMLoaded', done);
+      postcardLottieAnimation.addEventListener('data_failed', failed);
+      setTimeout(done, 1800);
+    }));
+  }
+
+  function playPostcardLottieReverseOnce() {
+    if (postcardLottiePlayed) return;
+    postcardLottiePlayed = true;
+    ensurePostcardLottie().then((animation) => {
+      const endFrame = Math.max(0, Math.floor(animation.totalFrames || 144) - 1);
+      const finish = () => {
+        animation.removeEventListener('complete', finish);
+        animation.pause();
+      };
+      animation.loop = false;
+      animation.setDirection(-1);
+      animation.goToAndStop(endFrame, true);
+      animation.addEventListener('complete', finish);
+      animation.play();
+    }).catch((error) => {
+      console.warn('[Christmas AR] postcard lottie failed:', error);
+    });
+  }
+
+  function resetPostcardLottie() {
+    postcardLottiePlayed = false;
+    if (!postcardLottieAnimation) return;
+    const endFrame = Math.max(0, Math.floor(postcardLottieAnimation.totalFrames || 144) - 1);
+    postcardLottieAnimation.setDirection(-1);
+    postcardLottieAnimation.goToAndStop(endFrame, true);
   }
 
   function unlockSpeech() {
@@ -1089,6 +1175,7 @@
     videoOverlay.classList.add('hidden');
     postcardButton.classList.add('hidden');
     postcardButton.classList.remove('opening');
+    resetPostcardLottie();
     santaCanvas.classList.remove('visible');
     if (santa) santa.visible = false;
     state.experienceStarted = false;
