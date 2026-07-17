@@ -236,7 +236,7 @@
         left: 50%;
         bottom: calc(82px + env(safe-area-inset-bottom, 0px));
         z-index: 2147483644;
-        transform: translateX(-50%);
+        transform: translate3d(-50%, 0, 0);
         width: min(84vw, 430px);
         min-height: 120px;
         border: 0;
@@ -247,16 +247,15 @@
         box-shadow: 0 22px 55px rgba(48, 15, 10, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.75);
         pointer-events: auto;
         overflow: hidden;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 14px 18px 14px 12px;
+        display: grid;
+        place-items: center;
+        padding: 14px 18px;
       }
 
       #postcard-button.hidden { display: none; }
       #postcard-button:not(.hidden) {
-        animation: postcard-fly-in 0.72s cubic-bezier(0.18, 0.92, 0.26, 1.08) both,
-          postcard-float 3.6s ease-in-out 0.72s infinite;
+        animation: postcard-fly-in 0.9s cubic-bezier(0.18, 0.92, 0.26, 1.08) both,
+          postcard-float 3.6s ease-in-out 0.9s infinite;
       }
       #postcard-button.opening {
         pointer-events: none;
@@ -277,11 +276,9 @@
       #postcard-button::after { transform: skewY(-24deg); }
 
       .postcard-lottie {
-        position: relative;
-        z-index: 1;
-        flex: 0 0 104px;
-        width: 104px;
-        height: 104px;
+        position: absolute;
+        inset: -22% -8%;
+        z-index: 0;
         filter: drop-shadow(0 12px 18px rgba(94, 31, 17, 0.22));
         pointer-events: none;
       }
@@ -349,9 +346,17 @@
       .postcard-copy {
         position: relative;
         z-index: 1;
-        flex: 1 1 auto;
         text-align: center;
         min-width: 0;
+        opacity: 0;
+        transform: translateY(8px);
+        transition: opacity 0.28s ease, transform 0.28s ease;
+        pointer-events: none;
+      }
+
+      #postcard-button.lottie-done .postcard-copy {
+        opacity: 1;
+        transform: translateY(0);
       }
 
       .postcard-eyebrow {
@@ -388,13 +393,14 @@
       }
 
       @keyframes postcard-fly-in {
-        from { transform: translate(-50%, 95px) scale(0.82) rotate(4deg); opacity: 0; }
-        to { transform: translate(-50%, 0) scale(1) rotate(0deg); opacity: 1; }
+        from { transform: translate3d(34vw, -34vh, 0) scale(0.62) rotate(12deg); opacity: 0; }
+        62% { opacity: 1; }
+        to { transform: translate3d(-50%, 0, 0) scale(1) rotate(0deg); opacity: 1; }
       }
 
       @keyframes postcard-float {
-        0%, 100% { transform: translate(-50%, 0); }
-        50% { transform: translate(-50%, -8px); }
+        0%, 100% { transform: translate3d(-50%, 0, 0); }
+        50% { transform: translate3d(-50%, -8px, 0); }
       }
 
       @keyframes postcard-shine {
@@ -403,7 +409,7 @@
       }
 
       @keyframes postcard-open {
-        to { transform: translate(-50%, -34px) scale(1.08) rotateX(34deg); opacity: 0; }
+        to { transform: translate3d(-50%, -34px, 0) scale(1.08) rotateX(34deg); opacity: 0; }
       }
 
       #christmas-video-overlay, #complete-overlay {
@@ -977,7 +983,7 @@
     playSantaAction('Santa_DanceIdle', 0.2);
     hideScanStatus();
     postcardButton.classList.add('hidden');
-    postcardButton.classList.remove('opening');
+    postcardButton.classList.remove('opening', 'lottie-done');
     resetPostcardLottie();
     videoOverlay.classList.add('hidden');
     completeOverlay.classList.add('hidden');
@@ -1064,6 +1070,7 @@
       const finish = () => {
         animation.removeEventListener('complete', finish);
         animation.pause();
+        postcardButton.classList.add('lottie-done');
       };
       animation.loop = false;
       animation.setDirection(-1);
@@ -1072,11 +1079,13 @@
       animation.play();
     }).catch((error) => {
       console.warn('[Christmas AR] postcard lottie failed:', error);
+      if (postcardButton) postcardButton.classList.add('lottie-done');
     });
   }
 
   function resetPostcardLottie() {
     postcardLottiePlayed = false;
+    if (postcardButton) postcardButton.classList.remove('lottie-done');
     if (!postcardLottieAnimation) return;
     const endFrame = Math.max(0, Math.floor(postcardLottieAnimation.totalFrames || 144) - 1);
     postcardLottieAnimation.setDirection(-1);
@@ -1174,7 +1183,7 @@
     completeOverlay.classList.add('hidden');
     videoOverlay.classList.add('hidden');
     postcardButton.classList.add('hidden');
-    postcardButton.classList.remove('opening');
+    postcardButton.classList.remove('opening', 'lottie-done');
     resetPostcardLottie();
     santaCanvas.classList.remove('visible');
     if (santa) santa.visible = false;
