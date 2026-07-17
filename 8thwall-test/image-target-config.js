@@ -234,7 +234,7 @@
       #postcard-button {
         position: fixed;
         left: 50%;
-        bottom: calc(98px + env(safe-area-inset-bottom, 0px));
+        bottom: calc(298px + env(safe-area-inset-bottom, 0px));
         z-index: 2147483644;
         transform: translate3d(-50%, 0, 0);
         width: min(84vw, 430px);
@@ -271,7 +271,13 @@
         z-index: 0;
         transform: translate(-50%, -50%);
         filter: drop-shadow(0 12px 18px rgba(94, 31, 17, 0.22));
+        opacity: 0;
+        transition: opacity 0.08s linear;
         pointer-events: none;
+      }
+
+      #postcard-button.lottie-visible .postcard-lottie {
+        opacity: 1;
       }
 
       .postcard-lottie svg {
@@ -906,7 +912,7 @@
     playSantaAction('Santa_DanceIdle', 0.2);
     hideScanStatus();
     postcardButton.classList.add('hidden');
-    postcardButton.classList.remove('opening', 'lottie-done');
+    postcardButton.classList.remove('opening', 'lottie-done', 'lottie-visible');
     resetPostcardLottie();
     videoOverlay.classList.add('hidden');
     completeOverlay.classList.add('hidden');
@@ -998,17 +1004,20 @@
       animation.loop = false;
       animation.setDirection(-1);
       animation.goToAndStop(endFrame, true);
-      animation.addEventListener('complete', finish);
-      animation.play();
+      requestAnimationFrame(() => {
+        if (postcardButton) postcardButton.classList.add('lottie-visible');
+        animation.addEventListener('complete', finish);
+        animation.play();
+      });
     }).catch((error) => {
       console.warn('[Christmas AR] postcard lottie failed:', error);
-      if (postcardButton) postcardButton.classList.add('lottie-done');
+      if (postcardButton) postcardButton.classList.add('lottie-visible', 'lottie-done');
     });
   }
 
   function resetPostcardLottie() {
     postcardLottiePlayed = false;
-    if (postcardButton) postcardButton.classList.remove('lottie-done');
+    if (postcardButton) postcardButton.classList.remove('lottie-done', 'lottie-visible');
     if (!postcardLottieAnimation) return;
     const endFrame = Math.max(0, Math.floor(postcardLottieAnimation.totalFrames || 144) - 1);
     postcardLottieAnimation.setDirection(-1);
@@ -1106,7 +1115,7 @@
     completeOverlay.classList.add('hidden');
     videoOverlay.classList.add('hidden');
     postcardButton.classList.add('hidden');
-    postcardButton.classList.remove('opening', 'lottie-done');
+    postcardButton.classList.remove('opening', 'lottie-done', 'lottie-visible');
     resetPostcardLottie();
     santaCanvas.classList.remove('visible');
     if (santa) santa.visible = false;
