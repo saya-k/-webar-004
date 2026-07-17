@@ -135,7 +135,7 @@
         border-radius: 999px;
         background: rgba(0, 0, 0, 0.68);
         color: #fff;
-        font: 700 16px/1.2 Arial, Helvetica, sans-serif;
+        font: 700 16px/1.2 "Segoe UI Variable Text", "Aptos", "Segoe UI", Arial, Helvetica, sans-serif;
         text-align: center;
         pointer-events: none;
       }
@@ -154,7 +154,7 @@
         border: 1px solid rgba(255, 255, 255, 0.45);
         background: rgba(0, 0, 0, 0.62);
         color: #fff;
-        font: 800 16px/1 Arial, Helvetica, sans-serif;
+        font: 800 16px/1 "Segoe UI Variable Text", "Aptos", "Segoe UI", Arial, Helvetica, sans-serif;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
         pointer-events: auto;
       }
@@ -217,7 +217,7 @@
         padding: 14px 16px;
         background: #183a8f;
         color: #fff;
-        font: 800 18px/1 Arial, Helvetica, sans-serif;
+        font: 800 18px/1 "Segoe UI Variable Text", "Aptos", "Segoe UI", Arial, Helvetica, sans-serif;
       }
 
       .name-error {
@@ -239,7 +239,7 @@
         border-radius: 22px;
         background: linear-gradient(145deg, #fff7dc 0%, #ffe7aa 58%, #f7c56d 100%);
         color: #8d1f20;
-        font: 800 20px/1.1 Arial, Helvetica, sans-serif;
+        font: 800 20px/1.1 "Segoe UI Variable Display", "Aptos Display", "Segoe UI", Arial, Helvetica, sans-serif;
         box-shadow: 0 22px 55px rgba(48, 15, 10, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.75);
         pointer-events: auto;
         overflow: hidden;
@@ -330,7 +330,7 @@
         position: relative;
         z-index: 1;
         flex: 1 1 auto;
-        text-align: left;
+        text-align: center;
         min-width: 0;
       }
 
@@ -345,10 +345,16 @@
       }
 
       .postcard-title {
-        display: block;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         color: #8f2020;
-        font-size: clamp(20px, 4.8vw, 28px);
-        line-height: 1.08;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(25px, 6.2vw, 34px);
+        font-weight: 700;
+        line-height: 1.02;
+        letter-spacing: 0;
       }
 
       .postcard-shine {
@@ -455,8 +461,8 @@
         z-index: 1;
         margin: 0 0 8px;
         color: #1b5b8f;
-        font: 800 14px/1.2 Arial, Helvetica, sans-serif;
-        letter-spacing: 1.2px;
+        font: 800 13px/1.2 "Segoe UI Variable Text", "Aptos", "Segoe UI", Arial, Helvetica, sans-serif;
+        letter-spacing: 2.4px;
         text-transform: uppercase;
       }
 
@@ -464,18 +470,12 @@
         position: relative;
         z-index: 1;
         margin: 0 0 10px;
-        font-size: clamp(34px, 8vw, 48px);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(40px, 9.5vw, 56px);
+        font-weight: 700;
         line-height: 1;
         color: #9b2024;
-      }
-
-      .complete-card p.complete-message {
-        position: relative;
-        z-index: 1;
-        margin: 0 auto 22px;
-        max-width: 330px;
-        color: #5f3a25;
-        font: 700 16px/1.35 Arial, Helvetica, sans-serif;
+        letter-spacing: 0;
       }
 
       .complete-card button {
@@ -486,7 +486,7 @@
         padding: 15px 30px;
         background: linear-gradient(135deg, #183a8f, #2d79c7);
         color: #fff;
-        font: 900 18px/1 Arial, Helvetica, sans-serif;
+        font: 900 18px/1 "Segoe UI Variable Text", "Aptos", "Segoe UI", Arial, Helvetica, sans-serif;
         box-shadow: 0 12px 28px rgba(24, 58, 143, 0.28);
       }
 
@@ -543,8 +543,10 @@
             <span class="postcard-seal"></span>
           </span>
           <span class="postcard-copy">
-            <span class="postcard-eyebrow">Special delivery</span>
-            <span class="postcard-title">Open your Christmas postcard</span>
+            <span class="postcard-title">
+              <span>Open your</span>
+              <span>Christmas postcard</span>
+            </span>
           </span>
           <span class="postcard-shine" aria-hidden="true"></span>
         </button>
@@ -557,7 +559,6 @@
             <div class="complete-logo"><img src="./assets/lag-logo.jpg" alt="LAG" /></div>
             <div id="completion-name" class="complete-name">For someone special</div>
             <h2>Merry Christmas</h2>
-            <p class="complete-message">Your personalized Christmas greeting has been delivered.</p>
             <button id="restart-button" type="button">Scan another postcard</button>
           </div>
         </div>
