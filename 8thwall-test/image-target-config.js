@@ -266,8 +266,8 @@
         position: absolute;
         left: 50%;
         top: 50%;
-        width: 112%;
-        height: 178%;
+        width: 336%;
+        height: 534%;
         z-index: 0;
         transform: translate(-50%, -50%);
         filter: drop-shadow(0 12px 18px rgba(94, 31, 17, 0.22));
