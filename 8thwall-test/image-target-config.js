@@ -261,6 +261,10 @@
         pointer-events: none;
         animation: postcard-open 0.58s cubic-bezier(0.2, 0.85, 0.2, 1) forwards;
       }
+      #postcard-button.lottie-done {
+        animation: none;
+        transform: translate3d(-50%, 0, 0);
+      }
 
       .postcard-lottie {
         position: absolute;
@@ -287,21 +291,23 @@
       }
 
       .postcard-copy {
-        position: relative;
+        position: absolute;
+        left: 50%;
+        top: 58%;
         z-index: 1;
         text-align: center;
         min-width: 0;
         width: min(72vw, 340px);
-        padding: 10px 18px;
+        padding: 0 18px;
         opacity: 0;
-        transform: translateY(8px);
-        transition: opacity 0.28s ease, transform 0.28s ease;
+        transform: translate(-50%, -50%);
+        transition: opacity 0.28s ease;
         pointer-events: none;
       }
 
       #postcard-button.lottie-done .postcard-copy {
         opacity: 1;
-        transform: translateY(0);
+        transform: translate(-50%, -50%);
       }
 
       .postcard-eyebrow {
@@ -319,6 +325,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        gap: 0.42em;
         color: #8f2020;
         font-family: Georgia, "Times New Roman", serif;
         font-size: clamp(25px, 6.2vw, 34px);
