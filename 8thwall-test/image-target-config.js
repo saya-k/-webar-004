@@ -250,8 +250,8 @@
       }
 
       #intro-lottie {
-        width: min(72vw, 360px);
-        height: min(72vw, 360px);
+        width: min(108vw, 540px);
+        height: min(108vw, 540px);
         filter: drop-shadow(0 16px 26px rgba(82, 22, 18, 0.22));
       }
 
@@ -989,27 +989,11 @@
     santaCanvas.classList.remove('visible');
     if (santa) santa.visible = false;
 
-    let introDone = false;
-    let speechDone = false;
-    const tryFinishSpeechStep = () => {
-      if (!introDone || !speechDone || !state.experienceStarted || state.flowToken !== flowToken) return;
-      finishSpeechStep();
-    };
-
-    speakIntro().then(() => {
-      speechDone = true;
-      tryFinishSpeechStep();
-    });
+    speakIntro();
 
     playIntroLottieOnce().then(() => {
       if (!state.experienceStarted || state.flowToken !== flowToken) return;
-      introDone = true;
-      state.santaMode = 'dance';
-      playSantaAction('Santa_DanceIdle', 0.2);
-      santaCanvas.classList.add('visible');
-      if (santa) santa.visible = true;
-      if (!speechDone) startSpeechWatchdog(7600);
-      tryFinishSpeechStep();
+      finishSpeechStep({ cancelSpeech: false });
     });
   }
 
@@ -1032,13 +1016,16 @@
     }
   }
 
-  function finishSpeechStep() {
+  function finishSpeechStep({ cancelSpeech = true } = {}) {
     if (!state.experienceStarted || state.postcardReady) return;
     stopSpeechWatchdog();
-    try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch {}
+    if (cancelSpeech) {
+      try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch {}
+    }
     state.postcardReady = true;
-    state.santaMode = 'wave';
-    playSantaAction('Santa_WaveHello', 0.45);
+    state.santaMode = 'hidden';
+    santaCanvas.classList.remove('visible');
+    if (santa) santa.visible = false;
     postcardButton.classList.remove('hidden');
     playPostcardLottieReverseOnce();
   }
@@ -1232,6 +1219,7 @@
   function openPostcard() {
     if (!state.postcardReady || state.videoPlaying) return;
     state.videoPlaying = true;
+    try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch {}
     postcardButton.classList.add('opening');
     setTimeout(async () => {
       postcardButton.classList.add('hidden');
