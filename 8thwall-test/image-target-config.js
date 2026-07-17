@@ -293,12 +293,16 @@
       .postcard-copy {
         position: absolute;
         left: 50%;
-        top: calc(50% + 107px);
+        top: 50%;
         z-index: 1;
+        width: 336%;
+        height: 534%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         text-align: center;
         min-width: 0;
-        width: min(72vw, 340px);
-        padding: 0 18px;
+        padding: 0;
         opacity: 0;
         transform: translate(-50%, -50%);
         transition: opacity 0.28s ease;
@@ -326,6 +330,7 @@
         align-items: center;
         justify-content: center;
         gap: 0.42em;
+        width: min(72vw, 360px);
         color: #8f2020;
         font-family: Georgia, "Times New Roman", serif;
         font-size: clamp(25px, 6.2vw, 34px);
