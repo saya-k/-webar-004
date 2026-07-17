@@ -16,6 +16,10 @@
   let postcardButton;
   let postcardLottieContainer;
   let postcardLottieAnimation;
+  let introLottieOverlay;
+  let introLottieContainer;
+  let introLottieAnimation;
+  let introLottiePlayed = false;
   let lottieRuntimePromise;
   let postcardLottiePlayed = false;
   let videoOverlay;
@@ -50,6 +54,7 @@
     santaTime: 0,
     speechWatchdog: null,
     speechDeadlineAt: 0,
+    flowToken: 0,
   };
 
   function installStyles() {
@@ -229,6 +234,31 @@
         margin-top: 8px;
         color: #b3261e;
         font-size: 13px;
+      }
+
+      #intro-lottie-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483643;
+        display: grid;
+        place-items: center;
+        pointer-events: none;
+      }
+
+      #intro-lottie-overlay.hidden {
+        display: none;
+      }
+
+      #intro-lottie {
+        width: min(72vw, 360px);
+        height: min(72vw, 360px);
+        filter: drop-shadow(0 16px 26px rgba(82, 22, 18, 0.22));
+      }
+
+      #intro-lottie svg {
+        display: block;
+        width: 100%;
+        height: 100%;
       }
 
       #postcard-button {
@@ -531,6 +561,9 @@
             </span>
           </span>
         </button>
+        <div id="intro-lottie-overlay" class="hidden" aria-hidden="true">
+          <div id="intro-lottie"></div>
+        </div>
         <div id="christmas-video-overlay" class="hidden">
           <video id="christmas-video" src="./assets/Christmas.mp4" playsinline webkit-playsinline preload="auto"></video>
         </div>
@@ -553,6 +586,8 @@
       nameBadge = document.getElementById('name-badge');
       postcardButton = document.getElementById('postcard-button');
       postcardLottieContainer = document.getElementById('postcard-lottie');
+      introLottieOverlay = document.getElementById('intro-lottie-overlay');
+      introLottieContainer = document.getElementById('intro-lottie');
       videoOverlay = document.getElementById('christmas-video-overlay');
       christmasVideo = document.getElementById('christmas-video');
       completeOverlay = document.getElementById('complete-overlay');
@@ -933,22 +968,33 @@
 
   function startChristmasFlow(targetName) {
     console.log('[Christmas AR] start flow:', targetName);
+    const flowToken = ++state.flowToken;
     state.experienceStarted = true;
     state.postcardReady = false;
     state.videoPlaying = false;
-    state.santaMode = 'dance';
+    state.santaMode = 'hidden';
     state.santaTime = 0;
-    playSantaAction('Santa_DanceIdle', 0.2);
     hideScanStatus();
     postcardButton.classList.add('hidden');
     postcardButton.classList.remove('opening', 'lottie-done', 'lottie-visible');
     resetPostcardLottie();
+    resetIntroLottie();
     videoOverlay.classList.add('hidden');
     completeOverlay.classList.add('hidden');
-    santaCanvas.classList.add('visible');
-    if (santa) santa.visible = true;
-    startSpeechWatchdog(7600);
-    speakIntro().then(finishSpeechStep);
+    santaCanvas.classList.remove('visible');
+    if (santa) santa.visible = false;
+
+    playIntroLottieOnce().then(() => {
+      if (!state.experienceStarted || state.flowToken !== flowToken) return;
+      state.santaMode = 'dance';
+      playSantaAction('Santa_DanceIdle', 0.2);
+      santaCanvas.classList.add('visible');
+      if (santa) santa.visible = true;
+      startSpeechWatchdog(7600);
+      speakIntro().then(() => {
+        if (state.flowToken === flowToken) finishSpeechStep();
+      });
+    });
   }
 
   function startSpeechWatchdog(timeoutMs) {
@@ -1053,6 +1099,62 @@
     postcardLottieAnimation.goToAndStop(endFrame, true);
   }
 
+  function ensureIntroLottie() {
+    if (introLottieAnimation) return Promise.resolve(introLottieAnimation);
+    if (!introLottieContainer) return Promise.reject(new Error('intro lottie container missing'));
+    return loadLottieRuntime().then((lottie) => new Promise((resolve, reject) => {
+      introLottieAnimation = lottie.loadAnimation({
+        container: introLottieContainer,
+        renderer: 'svg',
+        loop: false,
+        autoplay: false,
+        path: './assets/gingerbread-socks-intro.json',
+        rendererSettings: {
+          preserveAspectRatio: 'xMidYMid meet',
+        },
+      });
+      const done = () => resolve(introLottieAnimation);
+      const failed = () => reject(new Error('intro lottie data failed'));
+      introLottieAnimation.addEventListener('DOMLoaded', done);
+      introLottieAnimation.addEventListener('data_failed', failed);
+      setTimeout(done, 1800);
+    }));
+  }
+
+  function playIntroLottieOnce() {
+    if (introLottiePlayed) return Promise.resolve();
+    introLottiePlayed = true;
+    if (introLottieOverlay) introLottieOverlay.classList.remove('hidden');
+    return ensureIntroLottie().then((animation) => new Promise((resolve) => {
+      let finished = false;
+      const finish = () => {
+        if (finished) return;
+        finished = true;
+        animation.removeEventListener('complete', finish);
+        animation.pause();
+        if (introLottieOverlay) introLottieOverlay.classList.add('hidden');
+        resolve();
+      };
+      animation.loop = false;
+      animation.setDirection(1);
+      animation.goToAndStop(0, true);
+      animation.addEventListener('complete', finish);
+      requestAnimationFrame(() => animation.play());
+      setTimeout(finish, 5200);
+    })).catch((error) => {
+      console.warn('[Christmas AR] intro lottie failed:', error);
+      if (introLottieOverlay) introLottieOverlay.classList.add('hidden');
+    });
+  }
+
+  function resetIntroLottie() {
+    introLottiePlayed = false;
+    if (introLottieOverlay) introLottieOverlay.classList.add('hidden');
+    if (!introLottieAnimation) return;
+    introLottieAnimation.stop();
+    introLottieAnimation.goToAndStop(0, true);
+  }
+
   function unlockSpeech() {
     if (!('speechSynthesis' in window)) return;
     try {
@@ -1137,6 +1239,7 @@
   }
 
   function restartExperience() {
+    state.flowToken += 1;
     try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch {}
     stopSpeechWatchdog();
     christmasVideo.pause();
@@ -1146,6 +1249,7 @@
     postcardButton.classList.add('hidden');
     postcardButton.classList.remove('opening', 'lottie-done', 'lottie-visible');
     resetPostcardLottie();
+    resetIntroLottie();
     santaCanvas.classList.remove('visible');
     if (santa) santa.visible = false;
     state.experienceStarted = false;
