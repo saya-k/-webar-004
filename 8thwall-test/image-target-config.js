@@ -1116,7 +1116,7 @@
         renderer: 'svg',
         loop: true,
         autoplay: true,
-        path: './assets/merry-christmas-header.json',
+        path: './assets/merry-christmas-header.json?v=completion-header-lottie-20260720',
       });
     }).catch((error) => {
       console.warn('[Christmas AR] complete lottie failed:', error);
