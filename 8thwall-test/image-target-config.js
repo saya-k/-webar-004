@@ -25,7 +25,8 @@
   let videoOverlay;
   let christmasVideo;
   let completeOverlay;
-  let completionName;
+  let completeLottieContainer;
+  let completeLottieAnimation;
 
   let appStarted = false;
   let cameraStarted = false;
@@ -436,65 +437,28 @@
       .complete-card {
         position: relative;
         width: min(88vw, 480px);
-        padding: 30px 24px 26px;
+        padding: 18px 18px 24px;
         border-radius: 24px;
-        background: linear-gradient(180deg, rgba(255, 249, 232, 0.98), rgba(255, 235, 188, 0.96));
+        background: transparent;
         color: #8b1f1f;
         text-align: center;
-        box-shadow: 0 28px 90px rgba(0, 0, 0, 0.44);
-        overflow: hidden;
+        display: grid;
+        justify-items: center;
+        gap: 22px;
       }
 
-      .complete-card::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background:
-          linear-gradient(135deg, transparent 0 46%, rgba(164, 89, 49, 0.12) 47% 48%, transparent 49%),
-          linear-gradient(45deg, transparent 0 46%, rgba(164, 89, 49, 0.12) 47% 48%, transparent 49%);
+      .complete-header-lottie {
+        position: relative;
+        z-index: 1;
+        width: min(86vw, 460px);
+        height: min(42vw, 230px);
         pointer-events: none;
       }
 
-      .complete-logo {
-        position: relative;
-        z-index: 1;
-        width: 74px;
-        height: 74px;
-        margin: 0 auto 14px;
-        border-radius: 22px;
-        display: grid;
-        place-items: center;
-        background: #fff;
-        box-shadow: 0 10px 24px rgba(25, 58, 143, 0.18);
-        overflow: hidden;
-      }
-
-      .complete-logo img {
-        width: 64px;
-        height: 64px;
-        object-fit: contain;
-      }
-
-      .complete-name {
-        position: relative;
-        z-index: 1;
-        margin: 0 0 8px;
-        color: #1b5b8f;
-        font: 800 13px/1.2 "Segoe UI Variable Text", "Aptos", "Segoe UI", Arial, Helvetica, sans-serif;
-        letter-spacing: 2.4px;
-        text-transform: uppercase;
-      }
-
-      .complete-card h2 {
-        position: relative;
-        z-index: 1;
-        margin: 0 0 10px;
-        font-family: Georgia, "Times New Roman", serif;
-        font-size: clamp(40px, 9.5vw, 56px);
-        font-weight: 700;
-        line-height: 1;
-        color: #9b2024;
-        letter-spacing: 0;
+      .complete-header-lottie svg {
+        display: block;
+        width: 100%;
+        height: 100%;
       }
 
       .complete-card button {
@@ -509,21 +473,6 @@
         box-shadow: 0 12px 28px rgba(24, 58, 143, 0.28);
       }
 
-      .complete-sparkles {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        background-image:
-          radial-gradient(circle, rgba(255, 255, 255, 0.95) 0 2px, transparent 3px),
-          radial-gradient(circle, rgba(255, 214, 93, 0.95) 0 2px, transparent 3px);
-        background-size: 52px 52px, 70px 70px;
-        animation: complete-sparkle 6s linear infinite;
-      }
-
-      @keyframes complete-sparkle {
-        from { background-position: 0 0, 0 0; }
-        to { background-position: 52px 104px, -70px 140px; }
-      }
     `;
     document.head.appendChild(style);
   }
@@ -574,10 +523,7 @@
         </div>
         <div id="complete-overlay" class="hidden">
           <div class="complete-card">
-            <div class="complete-sparkles" aria-hidden="true"></div>
-            <div class="complete-logo"><img src="./assets/lag-logo.jpg" alt="LAG" /></div>
-            <div id="completion-name" class="complete-name">For someone special</div>
-            <h2>Merry Christmas</h2>
+            <div id="complete-header-lottie" class="complete-header-lottie" aria-hidden="true"></div>
             <button id="restart-button" type="button">Scan another postcard</button>
           </div>
         </div>
@@ -596,7 +542,7 @@
       videoOverlay = document.getElementById('christmas-video-overlay');
       christmasVideo = document.getElementById('christmas-video');
       completeOverlay = document.getElementById('complete-overlay');
-      completionName = document.getElementById('completion-name');
+      completeLottieContainer = document.getElementById('complete-header-lottie');
 
       document.getElementById('save-name-button').addEventListener('click', saveName);
       nameInput.addEventListener('keydown', (event) => {
@@ -1158,6 +1104,31 @@
     introLottieAnimation.goToAndStop(0, true);
   }
 
+  function playCompleteHeaderLottie() {
+    if (!completeLottieContainer) return;
+    loadLottieRuntime().then((lottie) => {
+      if (completeLottieAnimation) {
+        completeLottieAnimation.goToAndPlay(0, true);
+        return;
+      }
+      completeLottieAnimation = lottie.loadAnimation({
+        container: completeLottieContainer,
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: './assets/merry-christmas-header.json',
+      });
+    }).catch((error) => {
+      console.warn('[Christmas AR] complete lottie failed:', error);
+    });
+  }
+
+  function stopCompleteHeaderLottie() {
+    if (!completeLottieAnimation) return;
+    completeLottieAnimation.stop();
+    completeLottieAnimation.goToAndStop(0, true);
+  }
+
   function unlockSpeech() {
     if (!('speechSynthesis' in window)) return;
     try {
@@ -1238,8 +1209,8 @@
 
   function showComplete() {
     videoOverlay.classList.add('hidden');
-    if (completionName) completionName.textContent = state.childName ? `For ${state.childName}` : 'For someone special';
     completeOverlay.classList.remove('hidden');
+    playCompleteHeaderLottie();
   }
 
   function restartExperience() {
@@ -1254,6 +1225,7 @@
     postcardButton.classList.remove('opening', 'lottie-done', 'lottie-visible');
     resetPostcardLottie();
     resetIntroLottie();
+    stopCompleteHeaderLottie();
     santaCanvas.classList.remove('visible');
     if (santa) santa.visible = false;
     state.experienceStarted = false;
